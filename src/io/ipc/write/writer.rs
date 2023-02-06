@@ -135,7 +135,7 @@ impl<W: Write> FileWriter<W> {
         &mut self,
         chunk: &Chunk<Box<dyn Array>>,
         ipc_fields: Option<&[IpcField]>,
-    ) -> Result<()> {
+    ) -> Result<arrow_format::ipc::Block> {
         if self.state != State::Started {
             return Err(Error::oos(
                 "The IPC file must be started before it can be written to. Call `start` before `write`",
@@ -177,7 +177,10 @@ impl<W: Write> FileWriter<W> {
         };
         self.record_blocks.push(block);
         self.block_offsets += meta + data;
-        Ok(())
+        // return the block we just pushed
+        self.record_blocks.last().cloned().ok_or_else(|| {
+            Error::oos("The record block just written should be available, but it is not")
+        })
     }
 
     /// Write footer and closing tag, then mark the writer as done
