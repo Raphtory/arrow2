@@ -131,8 +131,8 @@ features = ["full"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-default = []
-full = [
+# default = []
+default = [
     # "io_odbc",
     "io_csv",
     "io_csv_async",
